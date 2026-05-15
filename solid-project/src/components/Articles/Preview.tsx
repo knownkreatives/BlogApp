@@ -1,5 +1,5 @@
-import type { DummyArticle, NewsArticle } from "../../utils/ArticleManager";
 import { useNavigate } from "@solidjs/router";
+import type { DummyArticle, NewsArticle } from "~/utils/ArticleManager";
 
 interface PreviewProps {
     id: number;

@@ -119,7 +119,6 @@ export async function getCachedNewsArticles(): Promise<NewsArticle[]> {
     return newsArticlesCache;
 }
 
-
 export async function fetchNewsArticleById(id: number): Promise<NewsArticle | undefined> {
     if (newsArticlesCache) {
         return newsArticlesCache[id];

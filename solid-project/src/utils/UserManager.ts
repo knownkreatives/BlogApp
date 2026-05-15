@@ -3,29 +3,28 @@ export interface User {
     firstName: string;
     lastName: string;
     email: string;
-    password: string; // In a real application, passwords should be hashed and not stored in plain text
-    image: string; // URL to the user's profile picture
-    role: 'admin' | 'editor' | 'viewer'; // User role for access control
+    password: string;           // In a real application, passwords should be hashed and not stored in plain text
+    image: string;              // URL to the user's profile picture
 }
 
-// Dummy users for testing purposes
-const dummyUsers: User[] = [{
-    id: 1,
-    firstName: "John",
-    lastName: "Doe",
-    email: "john.doe@example.com",
-    password: "password123",
-    image: "https://example.com/john-doe.jpg",
-    role: "admin"
-}, {
-    id: 2,
-    firstName: "Jane",
-    lastName: "Smith",
-    email: "jane.smith@example.com",
-    password: "password456",
-    image: "https://example.com/jane-smith.jpg",
-    role: "editor"
-}];
+export const dummyUsers: User[] = [    // Dummy users for testing purposes
+    {
+        id: 1,
+        firstName: "John",
+        lastName: "Doe",
+        email: "john.doe@example.com",
+        password: "password123",
+        image: "https://example.com/john-doe.jpg"
+    },
+    {
+        id: 2,
+        firstName: "Jane",
+        lastName: "Smith",
+        email: "jane.smith@example.com",
+        password: "password456",
+        image: "https://example.com/jane-smith.jpg"
+    }
+];
 
 export function getAllDummyUsers(): User[] {
     return dummyUsers;
@@ -56,7 +55,6 @@ export async function fetchUsersFromAPI(): Promise<User[]> {
         email: user.email,
         password: user.password, // In a real application, this should be handled securely
         image: user.image,
-        role: 'viewer' // Default role for API users
     }));
 }
 

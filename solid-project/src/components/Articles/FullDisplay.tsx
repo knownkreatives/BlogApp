@@ -1,4 +1,4 @@
-import { NewsArticle } from "../../utils/ArticleManager";
+import { NewsArticle } from "~/utils/ArticleManager";
 
 export default function FullDisplay(props: { article: NewsArticle }) {
     return (

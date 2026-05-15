@@ -1,6 +1,6 @@
 import { createEffect } from "solid-js";
 import { useParams } from "@solidjs/router";
-import { getDummyArticleById, fetchNewsArticleById } from "../../utils/ArticleManager";
+import { getDummyArticleById, fetchNewsArticleById } from "~/utils/ArticleManager";
 import FullDisplay from "~/components/Articles/FullDisplay";
 
 export default function Article() {
