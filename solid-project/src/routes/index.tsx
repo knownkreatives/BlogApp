@@ -1,5 +1,6 @@
 import { createEffect, createSignal } from "solid-js";
-import { getAllDummyArticles, fetchNewsArticles, NewsArticle } from "~/utils/ArticleManager";
+import { getAllDummyArticles, getCachedNewsArticles } from "~/utils/ArticleManager";
+import { NewsArticle } from "~/types/Article";
 import { DummyPreview, Preview } from "~/components/Articles/Preview";
 
 export default function Home() {
@@ -13,7 +14,7 @@ export default function Home() {
 		
 		<section>
 			<h2 class="text-4xl  text-gray-800 mb-6">Featured Articles</h2>
-			<Dummy featuredArticlesLength={featuredArticlesLength}/>
+			<Real featuredArticlesLength={featuredArticlesLength}/>
 		</section>
 		
 		<p class="mt-8">
@@ -44,14 +45,14 @@ function Real(props: {featuredArticlesLength: number}) {
 	const [articles, setArticles] = createSignal<NewsArticle[]>([]);
 
 	createEffect(async () => {
-		const fetchedArticles = await fetchNewsArticles();
+		const fetchedArticles = await getCachedNewsArticles();
 		setArticles(fetchedArticles.slice(0, props.featuredArticlesLength));
 	});
 	
 	return (
 		<div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-			{articles().slice(0, 3).map((article, idx) => (
-				<Preview id={idx} article={article} />
+			{articles().slice(0, 3).map((article) => (
+				<Preview article={article} />
 			))}
 		</div>
 	);

@@ -1,4 +1,6 @@
-import { getAllDummyArticles, fetchNewsArticles } from "~/utils/ArticleManager";
+import { createSignal, createEffect, Suspense } from "solid-js";
+import { getAllDummyArticles, getCachedNewsArticles } from "~/utils/ArticleManager";
+import { NewsArticle } from "~/types/Article";
 import { DummyListItem, ListItem } from "~/components/Articles/ListItem";
 
 export default function Blog() {
@@ -10,7 +12,7 @@ export default function Blog() {
 				<h1 class="text-5xl font-bold text-gray-800 mb-2">Blog</h1>
 				<p class="text-gray-600 mb-8">Latest articles</p>
 
-				<Dummy />
+				<Real />
       		</section>
     	</main>
   );
@@ -28,14 +30,21 @@ function Dummy() {
   );
 }
 
-async function Real() {
-	const articles = await fetchNewsArticles();
+function Real() {
+	const [articles, setArticles] = createSignal<NewsArticle[]>([]);
+
+	createEffect(async () => {
+		const fetchedArticles = await getCachedNewsArticles();
+		setArticles(fetchedArticles);
+	});
 
 	return (
-		<div class="space-y-6">
-			{articles.map((article, idx) => (
-				<ListItem id={idx} article={article} />
-			))}
-		</div>
+		<Suspense fallback={<div>Loading articles...</div>}>
+			<div class="space-y-6">
+				{articles().map((article) => (
+					<ListItem article={article} />
+				))}
+			</div>
+		</Suspense>
 	);
 }

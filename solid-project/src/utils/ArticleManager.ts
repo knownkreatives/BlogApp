@@ -1,12 +1,4 @@
-export interface DummyArticle {
-    id: string;
-    title: string;
-    excerpt: string;
-    content?: string;
-    date: string;
-    author: string;
-    category: string;
-}
+import { DummyArticle, APIResponse, RawNewsArticle, NewsArticle } from "~/types/Article";
 
 export const dummyArticles: DummyArticle[] = [
     {
@@ -82,31 +74,30 @@ export function getDummyArticleById(id: string): DummyArticle | undefined {
 }
 
 // The following functions are for fetching real news articles from an external API (e.g., NewsAPI.org)
-export interface APIResponse {
-    status: string;
-    totalResults: number;
-    articles: NewsArticle[];
+function getNewsArticleId(article: RawNewsArticle): string {
+    const normalizedUrl = new URL(article.url).hostname + new URL(article.url).pathname + new URL(article.url).search;
+    return normalizedUrl
+        .replace(/[^a-zA-Z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "")
+        .toLowerCase();
 }
 
-export interface NewsArticle {
-    source: { id: string; name: string };
-    author: string;
-    title: string;
-    description: string;
-    url: string;
-    urlToImage: string;
-    publishedAt: string;
-    content: string;
+function normalizeNewsArticle(article: RawNewsArticle): NewsArticle {
+    return {
+        ...article,
+        id: getNewsArticleId(article),
+    };
 }
 
 export async function fetchNewsArticles(): Promise<NewsArticle[]> {
     const apiKey = import.meta.env.VITE_NEWS_API_KEY;
+    
     const response = await fetch(`https://newsapi.org/v2/top-headlines?country=us&apiKey=${apiKey}`);
     if (!response.ok) {
         throw new Error(`Failed to fetch news articles: ${response.statusText}`);
     }
     const data: APIResponse = await response.json();
-    return data.articles;
+    return data.articles.map(normalizeNewsArticle);
 }
 
 export var newsArticlesCache: NewsArticle[] | null = null;
@@ -119,11 +110,12 @@ export async function getCachedNewsArticles(): Promise<NewsArticle[]> {
     return newsArticlesCache;
 }
 
-export async function fetchNewsArticleById(id: number): Promise<NewsArticle | undefined> {
+export async function fetchNewsArticleById(id: string): Promise<NewsArticle | undefined> {
     if (newsArticlesCache) {
-        return newsArticlesCache[id];
+        return newsArticlesCache.find((article) => article.id === id);
     }
 
     const articles = await getCachedNewsArticles();
-    return articles[id];
+    return articles.find((article) => article.id === id);
+
 }

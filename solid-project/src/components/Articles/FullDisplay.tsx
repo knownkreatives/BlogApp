@@ -1,8 +1,12 @@
-import { NewsArticle } from "~/utils/ArticleManager";
+import { NewsArticle } from "~/types/Article";
 
-export default function FullDisplay(props: { article: NewsArticle }) {
+interface FullDisplayProps {
+    article: NewsArticle;
+}
+
+export default function FullDisplay(props: FullDisplayProps) {
     return (
-        <main class="mx-auto text-gray-700 p-4 max-w-2xl">
+        <main class="mx-auto text-gray-700 p-4 max-w-4xl">
             <section>
                 <h1 class="text-5xl font-bold text-gray-800 mb-2">{props.article.title}</h1>
                 <p class="text-gray-600 mb-8">{props.article.description}</p>

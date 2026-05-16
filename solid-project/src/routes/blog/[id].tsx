@@ -1,15 +1,16 @@
-import { createEffect } from "solid-js";
+import { createSignal, createEffect, Suspense } from "solid-js";
 import { useParams } from "@solidjs/router";
 import { getDummyArticleById, fetchNewsArticleById } from "~/utils/ArticleManager";
+import { NewsArticle } from "~/types/Article";
 import FullDisplay from "~/components/Articles/FullDisplay";
 
 export default function Article() {
-	return Dummy();
+	return Real();
 }
 
 function Dummy() {
   	const params = useParams();
-  	const article = getDummyArticleById(params.id);
+  	const article = getDummyArticleById(String(params.id));
 
   	return (
     	<main class="mx-auto text-gray-700 p-4 max-w-2xl">
@@ -21,17 +22,20 @@ function Dummy() {
   	);
 }
 
-async function Real() {
+function Real() {
   	const params = useParams();
-  	var article = await fetchNewsArticleById(params.id);
+  	const [article, setArticle] = createSignal<NewsArticle | undefined>();
 
-	createEffect(() => {
-		console.log("Fetched article:", article);
+	createEffect(async () => {
+		const fetchedArticle = params.id ? await fetchNewsArticleById(params.id) : undefined;
+		setArticle(fetchedArticle);
 	});
 
   	return (
     	<main class="mx-auto text-gray-700 p-4 max-w-2xl">
-			{article ? <FullDisplay article={article} /> : <p class="text-gray-600">Loading...</p>}
-    	</main>
+			<Suspense fallback={<div>Loading article...</div>}>
+				{article() ? <FullDisplay article={article() as NewsArticle} /> : <div>Article not found.</div>}
+			</Suspense>
+		</main>
   	);
 }
