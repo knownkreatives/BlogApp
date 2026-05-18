@@ -1,4 +1,4 @@
-export interface ArticleComment {
+export interface Comment {
     id: string;
     newsId: string;
     userId: string;

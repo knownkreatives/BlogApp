@@ -1,13 +1,3 @@
-export interface DummyArticle {
-    id: string;
-    title: string;
-    excerpt: string;
-    content?: string;
-    date: string;
-    author: string;
-    category: string;
-}
-
 export interface APIResponse {
     status: string;
     totalResults: number;

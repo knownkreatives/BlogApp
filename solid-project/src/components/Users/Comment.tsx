@@ -1,19 +1,19 @@
 import { createEffect, createSignal, For, Show } from "solid-js";
 import { User } from "~/types/User";
-import { getCachedUsers } from "~/utils/UserManager";
-import { ArticleComment } from "~/types/Comment";
+import { getUsers } from "~/utils/UserManager";
+import { Comment } from "~/types/Comment";
 import { ProfilePicture } from "./Profile";
 
 interface CommentProps {
-    comment: ArticleComment;
+    comment: Comment;
 }
 
-export default function Comment(props: CommentProps) {
+export default function PostedComment(props: CommentProps) {
     const [user, setUser] = createSignal<User| undefined>();
     const [users, setUsers] = createSignal<User[]| undefined>();
 
     createEffect(async () => {
-        var response = await getCachedUsers();
+        var response = await getUsers();
         setUsers(response);
         if (response) setUser(response.find((u) => props.comment.userId == u.id));
         else setUser(undefined);
@@ -61,7 +61,7 @@ interface CommentsListProps {
 
 export function CommentsList(props: CommentsListProps) {
     const [loading, setLoading] = createSignal(true);
-    const [comments, setComments] = createSignal<ArticleComment[] | null>(null);
+    const [comments, setComments] = createSignal<Comment[] | null>(null);
 
     createEffect(async () => {
     });
@@ -72,7 +72,7 @@ export function CommentsList(props: CommentsListProps) {
                 <div class="space-y-4">
                     <For each={comments()}>
                         {(comment) => (
-                            <Comment comment={comment}/> 
+                            <PostedComment comment={comment}/> 
                         )}
                     </For>
                 </div>

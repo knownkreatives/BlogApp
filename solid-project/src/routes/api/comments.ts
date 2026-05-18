@@ -1,4 +1,4 @@
-import { addComment, editComment, getCommentsByArticleId } from "~/db/comments";
+import { addComment, editComment, deleteComment, getCommentsByArticleId } from "~/db/comments";
 
 const jsonHeaders = { "Content-Type": "application/json" };
 
@@ -62,6 +62,7 @@ export async function PUT(event: { request: Request }) {
         const commentId = url.pathname.split("/").pop();
         const body = await event.request.json();
         const content = body.content?.toString().trim();
+        const mode = body.mode;
         const newsId = body.newsId;
 
         if (!commentId || !content) {
@@ -86,5 +87,27 @@ export async function PUT(event: { request: Request }) {
 }
 
 export async function DELETE(event: { request: Request }) {
-
+    try {
+        const url = new URL(event.request.url);
+        const commentId = url.pathname.split("/").pop();
+        const body = await event.request.json();
+        const newsId = body.newsId;
+        if (!commentId) {
+            return new Response(JSON.stringify({ error: "commentId is required" }), {
+                status: 400,
+                headers: jsonHeaders,
+            });
+        }
+        const comment = deleteComment(commentId, newsId);
+        return new Response(JSON.stringify(comment), {
+            status: 200,
+            headers: jsonHeaders,
+        });
+    } catch (error) {
+        console.error("DELETE /api/comments error:", error);
+        return new Response(JSON.stringify({ error: "Failed to delete comment", details: String(error) }), {
+            status: 500,
+            headers: jsonHeaders,
+        });
+    }
 }

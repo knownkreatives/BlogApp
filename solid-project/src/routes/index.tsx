@@ -1,11 +1,16 @@
 import { createEffect, createSignal } from "solid-js";
-import { getAllDummyArticles, getCachedNewsArticles } from "~/utils/ArticleManager";
+import { getCachedNewsArticles } from "~/utils/ArticleManager";
 import { NewsArticle } from "~/types/Article";
-import { DummyPreview, Preview } from "~/components/Articles/Preview";
+import { Preview } from "~/components/Articles/Preview";
 
 export default function Home() {
-	const featuredArticlesLength = 3;
-
+	const [articles, setArticles] = createSignal<NewsArticle[]>([]);
+	
+	createEffect(async () => {
+		const fetchedArticles = await getCachedNewsArticles();
+		setArticles(fetchedArticles.slice(0, 3));
+	});
+	
   	return (
 		<main class="text-center mx-auto text-gray-700 p-4">
 		<title>Home</title>
@@ -14,7 +19,11 @@ export default function Home() {
 		
 		<section>
 			<h2 class="text-4xl  text-gray-800 mb-6">Featured Articles</h2>
-			<Real featuredArticlesLength={featuredArticlesLength}/>
+			<div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+				{articles().slice(0, 3).map((article) => (
+					<Preview article={article} />
+				))}
+			</div>
 		</section>
 		
 		<p class="mt-8">
@@ -22,38 +31,5 @@ export default function Home() {
 			<a href="/blog" class="text-sky-600 hover:underline">here</a>{" "}
 		</p>
 		</main>
-	);
-}
-
-function Dummy(props: { featuredArticlesLength: number }) {
-	const articles = getAllDummyArticles();
-	const randomUniqueArticle = () => {
-		const randomIndex = Math.floor(Math.random() * articles.length);
-		return articles[randomIndex];
-	};
-	
-  	return (
-    	<div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          	{Array.from({ length: props.featuredArticlesLength }, randomUniqueArticle).map((article) => (
-            	<DummyPreview article={article} />
-          	))}
-        </div>
-  	);
-}
-
-function Real(props: {featuredArticlesLength: number}) {
-	const [articles, setArticles] = createSignal<NewsArticle[]>([]);
-
-	createEffect(async () => {
-		const fetchedArticles = await getCachedNewsArticles();
-		setArticles(fetchedArticles.slice(0, props.featuredArticlesLength));
-	});
-	
-	return (
-		<div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-			{articles().slice(0, 3).map((article) => (
-				<Preview article={article} />
-			))}
-		</div>
 	);
 }

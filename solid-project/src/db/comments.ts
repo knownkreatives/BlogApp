@@ -1,6 +1,6 @@
 import Database from "better-sqlite3";
 import { randomUUID } from "crypto";
-import type { ArticleComment } from "~/types/Comment";
+import type { Comment } from "~/types/Comment";
 import { resolve } from "path";
 import { cwd } from "process";
 
@@ -30,7 +30,7 @@ db.prepare(
     )`
 ).run();
 
-export function getCommentsByArticleId(newsId: string): ArticleComment[] {
+export function getCommentsByArticleId(newsId: string): Comment[] {
     const rows = db.prepare(`SELECT * FROM comments WHERE newsId = ? ORDER BY postedAt DESC`).all(newsId) as any[];
     return rows.map((row) => ({
         id: row.id,
@@ -45,8 +45,8 @@ export function getCommentsByArticleId(newsId: string): ArticleComment[] {
     }));
 }
 
-export function addComment(newsId: string, userId: string, content: string): ArticleComment {
-    const comment: ArticleComment = {
+export function addComment(newsId: string, userId: string, content: string): Comment {
+    const comment: Comment = {
         id: randomUUID(),
         newsId,
         userId,
@@ -65,8 +65,8 @@ export function addComment(newsId: string, userId: string, content: string): Art
     return comment;
 }
 
-export function likeComment(id: string, newsId: string): ArticleComment | undefined {
-    const rows: ArticleComment[] = db.prepare(`SELECT * FROM comments WHERE newsId = ? ORDER BY postedAt DESC`).all(newsId) as any[];
+export function likeComment(id: string, newsId: string): Comment | undefined {
+    const rows: Comment[] = db.prepare(`SELECT * FROM comments WHERE newsId = ? ORDER BY postedAt DESC`).all(newsId) as any[];
     const row = rows.find((row) => row.id == id);
     if (row){
         row.likes += 1;
@@ -77,8 +77,8 @@ export function likeComment(id: string, newsId: string): ArticleComment | undefi
     return row;
 }
 
-export function shareComment(id: string, newsId: string): ArticleComment | undefined {
-    const rows: ArticleComment[] = db.prepare(`SELECT * FROM comments WHERE newsId = ? ORDER BY postedAt DESC`).all(newsId) as any[];
+export function shareComment(id: string, newsId: string): Comment | undefined {
+    const rows: Comment[] = db.prepare(`SELECT * FROM comments WHERE newsId = ? ORDER BY postedAt DESC`).all(newsId) as any[];
     const row = rows.find((row) => row.id == id);
     if (row){
         row.shares += 1;
@@ -89,8 +89,8 @@ export function shareComment(id: string, newsId: string): ArticleComment | undef
     return row;
 }
 
-export function editComment(id: string, newsId: string, newContent: string): ArticleComment | undefined {
-    const rows: ArticleComment[] = db.prepare(`SELECT * FROM comments WHERE newsId = ? ORDER BY postedAt DESC`).all(newsId) as any[];
+export function editComment(id: string, newsId: string, newContent: string): Comment | undefined {
+    const rows: Comment[] = db.prepare(`SELECT * FROM comments WHERE newsId = ? ORDER BY postedAt DESC`).all(newsId) as any[];
     const row = rows.find((row) => row.id == id);
     if (row){
         row.content = newContent;
@@ -99,6 +99,17 @@ export function editComment(id: string, newsId: string, newContent: string): Art
         db.prepare(
             `UPDATE comments SET content = ?, edited = ?, editedAt = ? WHERE id = ?`
         ).run(row.content, 1, row.editedAt, id);
+    }
+    return row;
+}
+
+export function deleteComment(id: string, newsId: string): Comment | undefined {
+    const rows: Comment[] = db.prepare(`SELECT * FROM comments WHERE newsId = ? ORDER BY postedAt DESC`).all(newsId) as any[];
+    const row = rows.find((row) => row.id == id);
+    if (row){
+        db.prepare(
+            `DELETE FROM comments WHERE id = ?`
+        ).run(id);
     }
     return row;
 }
